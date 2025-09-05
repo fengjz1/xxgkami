@@ -186,10 +186,14 @@ define('DB_NAME', '$database');
         $lock_file = "/var/www/html/install.lock";
         
         // 直接尝试创建配置文件，不检查目录权限
+        error_log("尝试写入配置文件: " . $config_file);
+        error_log("配置内容长度: " . strlen($config_content));
         $config_result = file_put_contents($config_file, $config_content);
+        error_log("file_put_contents 返回值: " . var_export($config_result, true));
         if($config_result === false) {
             $error_info = error_get_last();
             $error_msg = $error_info ? $error_info['message'] : '未知错误';
+            error_log("配置文件写入失败: " . $error_msg);
             throw new Exception("无法创建配置文件: " . $config_file . "，错误: " . $error_msg);
         }
         
