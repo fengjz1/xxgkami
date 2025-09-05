@@ -62,15 +62,13 @@ COPY docker/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
 # 复制Supervisor配置
 COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# 复制入口脚本
-COPY docker/php/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-RUN ls -la /usr/local/bin/entrypoint.sh
-
-# 复制应用文件
+# 复制应用文件，入口脚本将包含在其中
 COPY . /var/www/html/
 
-# 设置权限 - 只需要确保入口脚本可以执行即可
+# 确保项目内的入口脚本有执行权限
+RUN chmod +x /var/www/html/docker/php/entrypoint.sh
+
+# 设置权限
 RUN chown -R www-data:www-data /var/www/html
 
 # 等待MySQL服务启动的脚本
@@ -87,8 +85,8 @@ exec "$@"' > /usr/local/bin/wait-for-mysql.sh \
 # 暴露端口
 EXPOSE 9000
 
-# 设置入口点
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+# 设置入口点，直接使用项目内的脚本
+ENTRYPOINT ["/var/www/html/docker/php/entrypoint.sh"]
 
 # 启动命令 (作为入口脚本的参数)
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
