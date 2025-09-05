@@ -66,7 +66,7 @@ COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY . /var/www/html/
 
 # 确保项目内的入口脚本有执行权限
-RUN chmod +x /var/www/html/docker/php/entrypoint.sh
+RUN chmod +x /var/www/html/docker/php/init.sh
 
 # 设置权限
 RUN chown -R www-data:www-data /var/www/html
@@ -86,4 +86,4 @@ exec "$@"' > /usr/local/bin/wait-for-mysql.sh \
 EXPOSE 9000
 
 # 启动命令，直接调用入口脚本
-CMD ["/var/www/html/docker/php/entrypoint.sh", "/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD ["/var/www/html/docker/php/init.sh", "/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
