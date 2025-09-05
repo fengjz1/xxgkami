@@ -12,8 +12,9 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
       - ./install/install.sql:/docker-entrypoint-initdb.d/install.sql:ro
-    ports:
-      - "3306:3306"
+    # MySQL 端口不暴露到公网，仅容器间通信
+    # ports:
+    #   - "3306:3306"
     networks:
       - xxgkami_network
     command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
@@ -55,23 +56,11 @@ services:
     networks:
       - xxgkami_network
 
-  # phpMyAdmin (可选，用于数据库管理)
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin:latest
-    container_name: xxgkami_phpmyadmin
-    restart: unless-stopped
-    depends_on:
-      - mysql
-    environment:
-      PMA_HOST: mysql
-      PMA_PORT: 3306
-      PMA_USER: ${MYSQL_USER:-xxgkami_user}
-      PMA_PASSWORD: ${MYSQL_PASSWORD:-xxgkami_pass}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root123456}
-    ports:
-      - "8080:80"
-    networks:
-      - xxgkami_network
+# phpMyAdmin 已移除 - 出于安全考虑，生产环境不应暴露数据库管理界面
+# 如需数据库管理，请使用以下安全方式：
+# 1. SSH 隧道：ssh -L 3306:localhost:3306 user@server
+# 2. 本地 MySQL 客户端连接
+# 3. 使用项目自带的管理后台进行数据管理
 
 volumes:
   mysql_data:
