@@ -97,11 +97,12 @@ exec "$@"' > /usr/local/bin/wait-for-mysql.sh \
 # 暴露端口
 EXPOSE 9000
 
+# 创建启动脚本
+COPY docker/php/start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
+
 # 创建必要的文件
 RUN touch /var/www/html/config.php /var/www/html/install.lock
 
-# 设置权限
-RUN chown -R www-data:www-data /var/www/html
-
-# 启动命令 - 直接运行 php-fpm
-CMD ["/usr/local/sbin/php-fpm", "--nodaemonize"]
+# 启动命令
+CMD ["/usr/local/bin/start.sh"]
