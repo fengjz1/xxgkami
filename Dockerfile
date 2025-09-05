@@ -74,8 +74,7 @@ COPY docker/php/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
 # 复制应用文件，入口脚本将包含在其中
 COPY . /var/www/html/
 
-# 确保项目内的入口脚本有执行权限
-RUN chmod +x /var/www/html/docker/php/init.sh
+# 确保supervisord配置正确
 
 # 设置权限
 RUN chown -R www-data:www-data /var/www/html \
@@ -98,8 +97,8 @@ exec "$@"' > /usr/local/bin/wait-for-mysql.sh \
 # 暴露端口
 EXPOSE 9000
 
-# 设置入口点，使用我们的初始化脚本
-ENTRYPOINT ["/var/www/html/docker/php/init.sh"]
+# 创建必要的文件
+RUN touch /var/www/html/config.php /var/www/html/install.lock
 
 # 启动命令
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
