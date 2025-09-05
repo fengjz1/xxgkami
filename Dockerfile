@@ -1,0 +1,79 @@
+# 使用官方PHP-FPM镜像作为基础镜像
+FROM php:8.1-fpm-alpine
+
+# 设置工作目录
+WORKDIR /var/www/html
+
+# 安装系统依赖
+RUN apk add --no-cache \
+    nginx \
+    supervisor \
+    mysql-client \
+    curl \
+    zip \
+    unzip \
+    git \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    libzip-dev \
+    oniguruma-dev \
+    libxml2-dev \
+    icu-dev
+
+# 安装PHP扩展
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
+        pdo \
+        pdo_mysql \
+        mysqli \
+        gd \
+        zip \
+        mbstring \
+        xml \
+        intl \
+        opcache
+
+# 配置PHP
+RUN echo "memory_limit = 256M" >> /usr/local/etc/php/conf.d/docker-php-memory.ini \
+    && echo "upload_max_filesize = 64M" >> /usr/local/etc/php/conf.d/docker-php-upload.ini \
+    && echo "post_max_size = 64M" >> /usr/local/etc/php/conf.d/docker-php-upload.ini \
+    && echo "max_execution_time = 300" >> /usr/local/etc/php/conf.d/docker-php-time.ini \
+    && echo "date.timezone = Asia/Shanghai" >> /usr/local/etc/php/conf.d/docker-php-timezone.ini
+
+# 配置OPcache
+RUN echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.memory_consumption=128" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.interned_strings_buffer=8" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.max_accelerated_files=4000" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.revalidate_freq=2" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.fast_shutdown=1" >> /usr/local/etc/php/conf.d/opcache.ini
+
+# 创建必要的目录
+RUN mkdir -p /var/lib/php/sessions \
+    && mkdir -p /var/log/nginx \
+    && mkdir -p /run/nginx
+
+# 设置权限
+RUN chown -R www-data:www-data /var/www/html \
+    && chown -R www-data:www-data /var/lib/php/sessions
+
+# 复制Nginx配置
+COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY docker/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
+
+# 复制Supervisor配置
+COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# 复制应用文件
+COPY . /var/www/html/
+
+# 设置权限
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html
+
+# 暴露端口
+EXPOSE 9000
+
+# 启动命令
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
