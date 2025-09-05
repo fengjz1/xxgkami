@@ -14,7 +14,7 @@
 ### 1. 克隆项目
 
 ```bash
-git clone https://github.com/xiaoxiaoguai-yyds/xxgkami.git
+git clone https://github.com/fengjz1/xxgkami.git
 cd xxgkami
 ```
 

@@ -4,9 +4,9 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-7.0+-blue.svg)](https://www.php.net)
 [![MySQL Version](https://img.shields.io/badge/MySQL-5.7+-orange.svg)](https://www.mysql.com)
-[![License](https://img.shields.io/github/license/xiaoxiaoguai-yyds/xxgkami)](https://github.com/xiaoxiaoguai-yyds/xxgkami/blob/main/LICENSE)
-[![GitHub Stars](https://img.shields.io/github/stars/xiaoxiaoguai-yyds/xxgkami)](https://github.com/xiaoxiaoguai-yyds/xxgkami/stargazers)
-[![GitHub Issues](https://img.shields.io/github/issues/xiaoxiaoguai-yyds/xxgkami)](https://github.com/xiaoxiaoguai-yyds/xxgkami/issues)
+[![License](https://img.shields.io/github/license/fengjz1/xxgkami)](https://github.com/fengjz1/xxgkami/blob/main/LICENSE)
+[![GitHub Stars](https://img.shields.io/github/stars/fengjz1/xxgkami)](https://github.com/fengjz1/xxgkami/stargazers)
+[![GitHub Issues](https://img.shields.io/github/issues/fengjz1/xxgkami)](https://github.com/fengjz1/xxgkami/issues)
 
 一个功能强大、安全可靠的卡密验证系统，支持多种验证方式，提供完整的API接口。
 适用于软件授权、会员验证等场景。
@@ -60,7 +60,7 @@ Apache/Nginx
 
 1. 克隆项目
 ```bash
-git clone https://github.com/xiaoxiaoguai-yyds/xxgkami.git
+git clone https://github.com/fengjz1/xxgkami.git
 ```
 
 2. 上传到网站目录
@@ -192,7 +192,7 @@ UPDATE `cards` SET `duration` = 0 WHERE `duration` IS NULL OR `duration` <= 0;
 
 ## ⭐ Star 历史
 
-[![Star History Chart](https://api.star-history.com/svg?repos=xiaoxiaoguai-yyds/xxgkami&type=Date)](https://star-history.com/#xiaoxiaoguai-yyds/xxgkami&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=fengjz1/xxgkami&type=Date)](https://star-history.com/#fengjz1/xxgkami&Date)
 
 
 ### 其他支持方式
