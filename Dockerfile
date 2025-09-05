@@ -86,5 +86,8 @@ exec "$@"' > /usr/local/bin/wait-for-mysql.sh \
 # 暴露端口
 EXPOSE 9000
 
-# 启动命令，直接调用bash执行我们的初始化脚本
-CMD ["/bin/bash", "-c", "/var/www/html/docker/php/init.sh && exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf"]
+# 设置入口点，使用我们的初始化脚本
+ENTRYPOINT ["/var/www/html/docker/php/init.sh"]
+
+# 启动命令
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
