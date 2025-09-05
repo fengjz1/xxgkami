@@ -185,22 +185,20 @@ define('DB_NAME', '$database');
         $config_file = "/var/www/html/config.php";
         $lock_file = "/var/www/html/install.lock";
         
-        // 检查目录是否可写
-        $parent_dir = dirname($config_file);
-        if(!is_writable($parent_dir)) {
-            throw new Exception("目录不可写: " . $parent_dir . "，请检查权限");
-        }
-        
-        // 尝试创建配置文件
+        // 直接尝试创建配置文件，不检查目录权限
         $config_result = file_put_contents($config_file, $config_content);
         if($config_result === false) {
-            throw new Exception("无法创建配置文件: " . $config_file . "，错误: " . error_get_last()['message']);
+            $error_info = error_get_last();
+            $error_msg = $error_info ? $error_info['message'] : '未知错误';
+            throw new Exception("无法创建配置文件: " . $config_file . "，错误: " . $error_msg);
         }
         
-        // 尝试创建锁定文件
+        // 直接尝试创建锁定文件
         $lock_result = file_put_contents($lock_file, date('Y-m-d H:i:s'));
         if($lock_result === false) {
-            throw new Exception("无法创建安装锁定文件: " . $lock_file . "，错误: " . error_get_last()['message']);
+            $error_info = error_get_last();
+            $error_msg = $error_info ? $error_info['message'] : '未知错误';
+            throw new Exception("无法创建安装锁定文件: " . $lock_file . "，错误: " . $error_msg);
         }
         
         // 设置文件权限
