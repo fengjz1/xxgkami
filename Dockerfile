@@ -100,5 +100,8 @@ EXPOSE 9000
 # 创建必要的文件
 RUN touch /var/www/html/config.php /var/www/html/install.lock
 
-# 启动命令
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# 设置权限
+RUN chown -R www-data:www-data /var/www/html
+
+# 启动命令 - 直接运行 php-fpm
+CMD ["/usr/local/sbin/php-fpm", "--nodaemonize"]
