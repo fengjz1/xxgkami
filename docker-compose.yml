@@ -37,7 +37,6 @@ services:
       - DB_PASS=${MYSQL_PASSWORD:-xxgkami_pass}
     networks:
       - xxgkami_network
-    user: "0:0"  # 使用root用户确保有写入权限
 
   # Nginx Web服务器
   nginx:

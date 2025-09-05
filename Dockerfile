@@ -55,10 +55,6 @@ RUN mkdir -p /var/lib/php/sessions \
     && mkdir -p /run/nginx \
     && mkdir -p /var/log/supervisor
 
-# 设置权限
-RUN chown -R www-data:www-data /var/www/html \
-    && chown -R www-data:www-data /var/lib/php/sessions
-
 # 复制Nginx配置
 COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY docker/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
@@ -66,12 +62,15 @@ COPY docker/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
 # 复制Supervisor配置
 COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+# 复制入口脚本
+COPY docker/php/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 # 复制应用文件
 COPY . /var/www/html/
 
-# 设置权限 - 由于容器以root运行，设置为root用户并给予适当权限
-RUN chown -R root:root /var/www/html \
-    && chmod -R 755 /var/www/html
+# 设置权限 - 只需要确保入口脚本可以执行即可
+RUN chown -R www-data:www-data /var/www/html
 
 # 等待MySQL服务启动的脚本
 RUN echo '#!/bin/bash\n\
@@ -87,5 +86,8 @@ exec "$@"' > /usr/local/bin/wait-for-mysql.sh \
 # 暴露端口
 EXPOSE 9000
 
-# 启动命令
+# 设置入口点
+ENTRYPOINT ["entrypoint.sh"]
+
+# 启动命令 (作为入口脚本的参数)
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
