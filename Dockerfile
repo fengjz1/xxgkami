@@ -71,7 +71,8 @@ COPY . /var/www/html/
 
 # 设置权限
 RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html
+    && chmod -R 755 /var/www/html \
+    && chmod 777 /var/www/html
 
 # 等待MySQL服务启动的脚本
 RUN echo '#!/bin/bash\n\
