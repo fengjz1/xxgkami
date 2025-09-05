@@ -1,16 +1,20 @@
 <?php
 session_start();
 
-// 检查安装状态
-$lock_file = "/var/www/html/install.lock";
-if(!file_exists($lock_file) || !is_readable($lock_file)){
-    // 记录调试信息
-    error_log("install.lock 文件不存在或不可读: " . $lock_file . ", 当前目录: " . getcwd());
+// 检查安装状态 - 检查 config.php 是否存在且不为空是唯一可靠的方法
+$config_file = __DIR__ . '/config.php';
+if (!file_exists($config_file) || filesize($config_file) === 0) {
     header("Location: install/index.php");
     exit;
 }
 
 require_once 'config.php';
+
+// 双重检查，以防 config.php 文件损坏
+if (!defined('DB_HOST')) {
+    header("Location: install/index.php");
+    exit;
+}
 
 // 初始化错误变量
 $error = null;
