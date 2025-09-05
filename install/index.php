@@ -11,9 +11,16 @@ session_start();
 $error = null;
 
 // 如果已安装，直接跳转到首页
-if(file_exists("../install.lock")){
-    header("Location: ../index.php");
-    exit;
+$lock_file = "../install.lock";
+if(file_exists($lock_file)){
+    // 检查文件是否可读
+    if(is_readable($lock_file)) {
+        header("Location: ../index.php");
+        exit;
+    } else {
+        // 如果文件存在但不可读，记录错误但继续安装流程
+        error_log("install.lock 文件存在但不可读: " . $lock_file);
+    }
 }
 
 // 每次直接访问install/index.php时重置安装步骤
@@ -173,8 +180,22 @@ define('DB_USER', '$username');
 define('DB_PASS', '$password');
 define('DB_NAME', '$database');
 ";
-        file_put_contents("../config.php", $config_content);
-        file_put_contents("../install.lock", date('Y-m-d H:i:s'));
+        
+        // 确保目录存在并设置权限
+        $config_file = "../config.php";
+        $lock_file = "../install.lock";
+        
+        if(file_put_contents($config_file, $config_content) === false) {
+            throw new Exception("无法创建配置文件");
+        }
+        
+        if(file_put_contents($lock_file, date('Y-m-d H:i:s')) === false) {
+            throw new Exception("无法创建安装锁定文件");
+        }
+        
+        // 设置文件权限
+        chmod($config_file, 0644);
+        chmod($lock_file, 0644);
         
         $response['status'] = 'success';
         $response['message'] = '安装成功';
