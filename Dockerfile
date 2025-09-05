@@ -52,7 +52,8 @@ RUN echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/opcache.ini \
 # 创建必要的目录
 RUN mkdir -p /var/lib/php/sessions \
     && mkdir -p /var/log/nginx \
-    && mkdir -p /run/nginx
+    && mkdir -p /run/nginx \
+    && mkdir -p /var/log/supervisor
 
 # 设置权限
 RUN chown -R www-data:www-data /var/www/html \
