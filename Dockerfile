@@ -8,7 +8,7 @@ WORKDIR /var/www/html
 RUN apt-get update && apt-get install -y \
     nginx \
     supervisor \
-    mysql-client \
+    mariadb-client \
     curl \
     zip \
     unzip \
