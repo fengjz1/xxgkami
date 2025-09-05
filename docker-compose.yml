@@ -27,7 +27,6 @@ services:
     restart: unless-stopped
     depends_on:
       - mysql
-    user: "33:33"  # www-data用户的UID和GID
     volumes:
       - ./:/var/www/html
       - php_sessions:/var/lib/php/sessions
