@@ -1,4 +1,7 @@
 <?php
+// 开启输出缓冲
+ob_start();
+
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -41,6 +44,12 @@ if(!isset($_SESSION['install_step'])) {
 
 // 处理安装请求
 if(isset($_POST['install'])){
+    // 设置错误处理
+    error_reporting(E_ALL);
+    ini_set('display_errors', 0);
+    ini_set('log_errors', 1);
+    
+    // 设置JSON头
     header('Content-Type: application/json; charset=utf-8');
     
     $response = array(
@@ -181,7 +190,13 @@ define('DB_NAME', '$database');
         $response['message'] = $e->getMessage();
     }
     
-    die(json_encode($response, JSON_UNESCAPED_UNICODE));
+    // 确保只输出JSON，清除任何之前的输出
+    if (ob_get_level()) {
+        ob_clean();
+    }
+    
+    echo json_encode($response, JSON_UNESCAPED_UNICODE);
+    exit;
 }
 
 // 系统检测函数
