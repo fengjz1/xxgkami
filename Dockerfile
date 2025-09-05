@@ -1,11 +1,11 @@
 # 使用官方PHP-FPM镜像作为基础镜像
-FROM php:8.1-fpm-alpine
+FROM php:8.1-fpm
 
 # 设置工作目录
 WORKDIR /var/www/html
 
 # 安装系统依赖
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y \
     nginx \
     supervisor \
     mysql-client \
@@ -14,12 +14,13 @@ RUN apk add --no-cache \
     unzip \
     git \
     libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
     libzip-dev \
-    oniguruma-dev \
+    libonig-dev \
     libxml2-dev \
-    icu-dev
+    libicu-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # 安装PHP扩展
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
@@ -85,8 +86,5 @@ exec "$@"' > /usr/local/bin/wait-for-mysql.sh \
 # 暴露端口
 EXPOSE 9000
 
-# 重写基础镜像的ENTRYPOINT，使用我们的初始化脚本
-ENTRYPOINT ["/var/www/html/docker/php/init.sh"]
-
-# 启动命令
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# 启动命令，直接调用bash执行我们的初始化脚本
+CMD ["/bin/bash", "-c", "/var/www/html/docker/php/init.sh && exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf"]
