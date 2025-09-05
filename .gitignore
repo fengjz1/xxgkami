@@ -1,0 +1,22 @@
+# 应用生成的文件
+config.php
+install.lock
+
+# 临时文件
+*.tmp
+*.log
+test.txt
+*.bak
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# IDE 文件
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 环境文件
+.env

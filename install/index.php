@@ -27,13 +27,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
 
 // 处理步骤跳转
 if(isset($_POST['next_step'])){
-    error_log("Next step clicked. Current step: " . $_SESSION['install_step']);
     if(!isset($_SESSION['install_step'])) {
         $_SESSION['install_step'] = 1;
-        error_log("Session step initialized to 1");
     }
     $_SESSION['install_step']++;
-    error_log("Step increased to: " . $_SESSION['install_step']);
 }
 
 // 处理返回上一步
@@ -182,15 +179,11 @@ define('DB_NAME', '$database');
         $config_file = "/var/www/html/config.php";
         $lock_file = "/var/www/html/install.lock";
         
-        // 直接尝试创建配置文件，不检查目录权限
-        error_log("尝试写入配置文件: " . $config_file);
-        error_log("配置内容长度: " . strlen($config_content));
+        // 创建配置文件
         $config_result = file_put_contents($config_file, $config_content);
-        error_log("file_put_contents 返回值: " . var_export($config_result, true));
         if($config_result === false) {
             $error_info = error_get_last();
             $error_msg = $error_info ? $error_info['message'] : '未知错误';
-            error_log("配置文件写入失败: " . $error_msg);
             throw new Exception("无法创建配置文件: " . $config_file . "，错误: " . $error_msg);
         }
         
@@ -657,11 +650,6 @@ function checkSystem() {
             </div>
         </form>
         
-        <!-- 添加调试信息 -->
-        <script>
-        console.log('Current step: <?php echo $_SESSION['install_step']; ?>');
-        console.log('All passed: <?php echo $all_passed ? 'true' : 'false'; ?>');
-        </script>
         
         <?php else: ?>
         <!-- 步骤3：数据库配置 -->
