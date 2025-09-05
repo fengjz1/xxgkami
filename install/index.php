@@ -639,19 +639,20 @@ function checkSystem() {
         <form method="POST" id="install-form">
             <div class="form-group">
                 <label>数据库地址：</label>
-                <input type="text" name="host" value="localhost" required>
+                <input type="text" name="host" value="<?php echo getenv('DB_HOST') ?: 'mysql'; ?>" required>
+                <small class="form-text text-muted">Docker环境请使用 'mysql'，本地环境请使用 'localhost'</small>
             </div>
             <div class="form-group">
                 <label>数据库用户名：</label>
-                <input type="text" name="username" required>
+                <input type="text" name="username" value="<?php echo getenv('DB_USER') ?: 'xxgkami_user'; ?>" required>
             </div>
             <div class="form-group">
                 <label>数据库密码：</label>
-                <input type="password" name="password">
+                <input type="password" name="password" value="<?php echo getenv('DB_PASS') ?: 'xxgkami_pass'; ?>">
             </div>
             <div class="form-group">
                 <label>数据库名：</label>
-                <input type="text" name="database" required>
+                <input type="text" name="database" value="<?php echo getenv('DB_NAME') ?: 'xxgkami'; ?>" required>
             </div>
             <div class="form-group">
                 <label>管理员用户名：</label>

@@ -73,6 +73,17 @@ COPY . /var/www/html/
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
+# 等待MySQL服务启动的脚本
+RUN echo '#!/bin/bash\n\
+echo "等待MySQL服务启动..."\n\
+while ! nc -z mysql 3306; do\n\
+  echo "MySQL未就绪，等待5秒..."\n\
+  sleep 5\n\
+done\n\
+echo "MySQL已就绪，启动应用..."\n\
+exec "$@"' > /usr/local/bin/wait-for-mysql.sh \
+    && chmod +x /usr/local/bin/wait-for-mysql.sh
+
 # 暴露端口
 EXPOSE 9000
 
