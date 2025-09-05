@@ -54,7 +54,12 @@ RUN echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/opcache.ini \
 RUN mkdir -p /var/lib/php/sessions \
     && mkdir -p /var/log/nginx \
     && mkdir -p /run/nginx \
-    && mkdir -p /var/log/supervisor
+    && mkdir -p /var/log/supervisor \
+    && mkdir -p /var/lib/nginx/body \
+    && mkdir -p /var/lib/nginx/fastcgi \
+    && mkdir -p /var/lib/nginx/proxy \
+    && mkdir -p /var/lib/nginx/scgi \
+    && mkdir -p /var/lib/nginx/uwsgi
 
 # 复制Nginx配置
 COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
@@ -63,6 +68,9 @@ COPY docker/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
 # 复制Supervisor配置
 COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+# 复制PHP-FPM配置
+COPY docker/php/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
+
 # 复制应用文件，入口脚本将包含在其中
 COPY . /var/www/html/
 
@@ -70,7 +78,11 @@ COPY . /var/www/html/
 RUN chmod +x /var/www/html/docker/php/init.sh
 
 # 设置权限
-RUN chown -R www-data:www-data /var/www/html
+RUN chown -R www-data:www-data /var/www/html \
+    && chown -R www-data:www-data /var/lib/nginx \
+    && chown -R www-data:www-data /var/log/nginx \
+    && chown -R www-data:www-data /run/nginx \
+    && chown -R www-data:www-data /var/lib/php/sessions
 
 # 等待MySQL服务启动的脚本
 RUN echo '#!/bin/bash\n\
