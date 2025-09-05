@@ -5,7 +5,7 @@
 echo "🛑 正在停止小小怪卡密验证系统..."
 
 # 停止所有服务
-docker-compose down
+docker compose down
 
 echo "✅ 服务已停止"
 
@@ -14,7 +14,7 @@ read -p "🗑️  是否清理所有数据（包括数据库）？这将删除�
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo "🧹 清理数据卷..."
-    docker-compose down -v
+    docker compose down -v
     docker system prune -f
     echo "✅ 数据已清理"
 else
