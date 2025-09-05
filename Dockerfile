@@ -65,6 +65,7 @@ COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 # 复制入口脚本
 COPY docker/php/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
+RUN ls -la /usr/local/bin/entrypoint.sh
 
 # 复制应用文件
 COPY . /var/www/html/
