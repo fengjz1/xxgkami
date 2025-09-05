@@ -87,7 +87,7 @@ exec "$@"' > /usr/local/bin/wait-for-mysql.sh \
 EXPOSE 9000
 
 # 设置入口点
-ENTRYPOINT ["entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 # 启动命令 (作为入口脚本的参数)
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
