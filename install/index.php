@@ -10,15 +10,13 @@ session_start();
 $error = null;
 
 // 如果已安装，直接跳转到首页
-$lock_file = "/var/www/html/install.lock";
-if(file_exists($lock_file)){
-    // 检查文件是否可读
-    if(is_readable($lock_file)) {
+$config_file = "/var/www/html/config.php";
+if(file_exists($config_file) && filesize($config_file) > 0){
+    // 检查配置文件是否有效
+    require_once $config_file;
+    if(defined('DB_HOST')) {
         header("Location: ../index.php");
         exit;
-    } else {
-        // 如果文件存在但不可读，记录错误但继续安装流程
-        error_log("install.lock 文件存在但不可读: " . $lock_file);
     }
 }
 
