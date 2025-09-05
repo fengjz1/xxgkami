@@ -11,7 +11,7 @@ session_start();
 $error = null;
 
 // 如果已安装，直接跳转到首页
-$lock_file = "../install.lock";
+$lock_file = "/var/www/html/install.lock";
 if(file_exists($lock_file)){
     // 检查文件是否可读
     if(is_readable($lock_file)) {
@@ -182,8 +182,8 @@ define('DB_NAME', '$database');
 ";
         
         // 确保目录存在并设置权限
-        $config_file = "../config.php";
-        $lock_file = "../install.lock";
+        $config_file = "/var/www/html/config.php";
+        $lock_file = "/var/www/html/install.lock";
         
         // 检查目录是否可写
         $parent_dir = dirname($config_file);

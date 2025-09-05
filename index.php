@@ -2,7 +2,7 @@
 session_start();
 
 // 检查安装状态
-$lock_file = "install.lock";
+$lock_file = "/var/www/html/install.lock";
 if(!file_exists($lock_file) || !is_readable($lock_file)){
     // 记录调试信息
     error_log("install.lock 文件不存在或不可读: " . $lock_file . ", 当前目录: " . getcwd());
