@@ -48,8 +48,7 @@ INSERT INTO `settings` (`name`, `value`) VALUES
 ('contact_qq_group', '123456789'),
 ('contact_wechat_qr', 'assets/images/wechat-qr.jpg'),
 ('contact_email', 'support@example.com'),
-('api_enabled', '0'),
-('api_key', SUBSTRING(MD5(RAND()) FROM 1 FOR 32)) 
+('api_enabled', '0')
 ON DUPLICATE KEY UPDATE `value`=`value`;
 
 -- 创建轮播图表

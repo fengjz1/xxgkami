@@ -74,7 +74,15 @@ docker-compose logs -f
 
 ```
 xxgkami/
-├── docker/
+├── controllers/          # 控制器层
+├── models/              # 数据模型层
+├── services/            # 业务逻辑层
+├── views/               # 视图层
+├── utils/               # 工具类
+├── home/                # 管理后台页面
+├── api/                 # API 接口
+├── assets/              # 静态资源
+├── docker/              # Docker 配置
 │   ├── nginx/
 │   │   ├── nginx.conf          # Nginx 主配置
 │   │   └── conf.d/

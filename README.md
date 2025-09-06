@@ -72,6 +72,25 @@ http://your-domain/install/
 
 4. 按照安装向导完成配置
 
+### 🐳 Docker 部署（推荐）
+
+使用 Docker 可以快速部署，无需配置环境：
+
+```bash
+# 克隆项目
+git clone https://github.com/fengjz1/xxgkami.git
+cd xxgkami
+
+# 启动服务
+docker-compose up -d
+
+# 访问应用
+# 主应用: http://localhost
+# 管理后台: http://localhost/admin.php
+```
+
+详细部署说明请参考 [Docker 部署指南](DOCKER_DEPLOYMENT.md)
+
 ## 📚 使用说明
 
 ### 管理员后台
@@ -129,6 +148,43 @@ curl_close($ch);
   - [x] 使用趋势
   - [x] 实时统计
   - [x] 图表展示
+
+## 🏗️ 技术架构
+
+### 架构特点
+- **MVC 架构**：采用 Model-View-Controller 设计模式
+- **模块化设计**：清晰的目录结构，易于维护和扩展
+- **前后端分离**：前端页面和管理后台分离
+- **API 优先**：完整的 RESTful API 接口
+
+### 目录结构
+```
+xxgkami/
+├── controllers/          # 控制器层
+│   ├── BaseController.php
+│   ├── HomeController.php
+│   ├── AdminLoginController.php
+│   └── QueryController.php
+├── models/              # 数据模型层
+│   ├── CardModel.php
+│   ├── SettingsModel.php
+│   └── ApiModel.php
+├── services/            # 业务逻辑层
+│   ├── CardService.php
+│   ├── ApiService.php
+│   └── ApiCardService.php
+├── views/               # 视图层
+│   ├── layouts/
+│   └── pages/
+├── utils/               # 工具类
+│   ├── Database.php
+│   ├── Response.php
+│   └── Validator.php
+├── home/                # 管理后台页面
+├── api/                 # API 接口
+├── assets/              # 静态资源
+└── docker/              # Docker 配置
+```
 
 ## 🔄 系统升级
 

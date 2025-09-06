@@ -1,17 +1,17 @@
 <?php
 session_start();
 
-require_once 'controllers/AdminLoginController.php';
+require_once 'controllers/QueryController.php';
 
 try {
-    $controller = new AdminLoginController();
+    $controller = new QueryController();
     
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller->login();
+        $controller->query();
     } else {
         $controller->index();
     }
 } catch (Exception $e) {
-    error_log("AdminLoginController Error: " . $e->getMessage());
+    error_log("QueryController Error: " . $e->getMessage());
     die("系统错误，请稍后再试");
 }

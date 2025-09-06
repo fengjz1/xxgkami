@@ -160,9 +160,6 @@ if(isset($_POST['install'])){
         
         // 第六步：更新API设置
         $response['step'] = '更新系统设置';
-        $api_key = bin2hex(random_bytes(16));
-        $stmt = $conn->prepare("UPDATE settings SET value = ? WHERE name = 'api_key'");
-        $stmt->execute([$api_key]);
         $stmt = $conn->prepare("UPDATE settings SET value = '0' WHERE name = 'api_enabled'");
         $stmt->execute();
         
