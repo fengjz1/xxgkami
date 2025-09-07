@@ -98,15 +98,38 @@ class CardManager {
     /**
      * 获取卡密列表
      */
-    public function getCards($limit = 20, $page = 1) {
+    public function getCards($limit = 20, $page = 1, $search = '') {
         $offset = ($page - 1) * $limit;
         
-        $total = $this->conn->query("SELECT COUNT(*) FROM cards")->fetchColumn();
+        // 构建搜索条件
+        $whereClause = '';
+        $params = [];
+        
+        if (!empty($search)) {
+            $whereClause = "WHERE (card_key LIKE ? OR encrypted_key LIKE ? OR device_id LIKE ?)";
+            $searchTerm = "%{$search}%";
+            $params = [$searchTerm, $searchTerm, $searchTerm];
+        }
+        
+        // 获取总数
+        $countSql = "SELECT COUNT(*) FROM cards {$whereClause}";
+        $countStmt = $this->conn->prepare($countSql);
+        $countStmt->execute($params);
+        $total = $countStmt->fetchColumn();
         $total_pages = ceil($total / $limit);
         
-        $stmt = $this->conn->prepare("SELECT * FROM cards ORDER BY id DESC LIMIT ? OFFSET ?");
-        $stmt->bindValue(1, $limit, PDO::PARAM_INT);
-        $stmt->bindValue(2, $offset, PDO::PARAM_INT);
+        // 获取数据
+        $sql = "SELECT * FROM cards {$whereClause} ORDER BY id DESC LIMIT ? OFFSET ?";
+        $stmt = $this->conn->prepare($sql);
+        
+        // 绑定参数
+        $paramIndex = 1;
+        foreach ($params as $param) {
+            $stmt->bindValue($paramIndex++, $param);
+        }
+        $stmt->bindValue($paramIndex++, $limit, PDO::PARAM_INT);
+        $stmt->bindValue($paramIndex, $offset, PDO::PARAM_INT);
+        
         $stmt->execute();
         $cards = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
@@ -115,7 +138,8 @@ class CardManager {
             'total' => $total,
             'total_pages' => $total_pages,
             'current_page' => $page,
-            'limit' => $limit
+            'limit' => $limit,
+            'search' => $search
         ];
     }
     

@@ -98,7 +98,9 @@ class AdminLayout {
      */
     public function renderSidebar() {
         $menuItems = [
-            ['icon' => 'fas fa-key', 'text' => '卡密管理', 'url' => 'index.php', 'page' => 'index'],
+            ['icon' => 'fas fa-tachometer-alt', 'text' => '首页', 'url' => 'index.php', 'page' => 'index'],
+            ['icon' => 'fas fa-plus-circle', 'text' => '生成卡密', 'url' => 'generate_cards.php', 'page' => 'generate_cards'],
+            ['icon' => 'fas fa-list', 'text' => '卡密列表', 'url' => 'cards.php', 'page' => 'cards'],
             ['icon' => 'fas fa-chart-line', 'text' => '数据统计', 'url' => 'stats.php', 'page' => 'stats'],
             ['icon' => 'fas fa-cog', 'text' => '系统设置', 'url' => 'settings.php', 'page' => 'settings'],
             ['icon' => 'fas fa-code', 'text' => 'API接口', 'url' => 'api_settings.php', 'page' => 'api_settings'],
@@ -195,7 +197,7 @@ class AdminLayout {
      */
     public function renderFooter() {
         $html = '<footer class="footer-copyright">
-            <div class="container">
+            <div class="footer-content">
                 &copy; ' . date('Y') . ' 小小怪卡密系统 - All Rights Reserved
             </div>
         </footer>';
