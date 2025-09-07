@@ -249,9 +249,12 @@ class ApiSettingsController extends BaseController {
                 <td>' . $key['id'] . '</td>
                 <td>' . htmlspecialchars($key['key_name']) . '</td>
                 <td>
-                    <code title="' . htmlspecialchars($key['api_key']) . '">' . 
-                    substr($key['api_key'], 0, 16) . '...</code>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard(\'' . $key['api_key'] . '\')">复制</button>
+                    <div class="api-key-container">
+                        <code class="api-key-display" title="点击复制" onclick="copyToClipboard(\'' . $key['api_key'] . '\')">' . htmlspecialchars($key['api_key']) . '</code>
+                        <button type="button" class="btn btn-sm btn-outline-secondary copy-btn" onclick="copyToClipboard(\'' . $key['api_key'] . '\')" title="复制API密钥">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
                 </td>
                 <td><span class="badge ' . $statusClass . '">' . $statusText . '</span></td>
                 <td>' . number_format($key['use_count']) . '</td>
@@ -341,16 +344,20 @@ class ApiSettingsController extends BaseController {
                 
                 <h5>响应示例</h5>
                 <pre><code>{
-    "code": 200,
+    "code": 0,
     "message": "验证成功",
     "data": {
         "card_id": 123,
         "card_key": "ABC123DEF456",
         "card_type": "time",
         "status": "valid",
+        "use_time": null,
         "expire_time": "2024-12-31 23:59:59",
+        "duration": 30,
+        "total_count": 0,
         "remaining_count": 0,
-        "device_id": "device123"
+        "device_id": "device123",
+        "allow_reverify": 1
     }
 }</code></pre>
                 
@@ -402,17 +409,39 @@ class ApiSettingsController extends BaseController {
                 
                 <h5>响应示例</h5>
                 <pre><code>{
-    "code": 200,
+    "code": 0,
     "message": "查询成功",
     "data": {
         "card_id": 123,
         "card_key": "ABC123DEF456",
         "card_type": "time",
         "status": "used",
-        "expire_time": "2024-12-31 23:59:59",
-        "remaining_count": 0,
         "use_time": "2024-01-15 10:30:00",
-        "device_id": "device123"
+        "expire_time": "2024-12-31 23:59:59",
+        "duration": 30,
+        "total_count": 0,
+        "remaining_count": 0,
+        "device_id": "device123",
+        "allow_reverify": 1
+    }
+}</code></pre>
+                
+                <h5>次数卡密示例</h5>
+                <pre><code>{
+    "code": 0,
+    "message": "查询成功",
+    "data": {
+        "card_id": 124,
+        "card_key": "me0qQVmucQ2tW4ObsvVa",
+        "card_type": "count",
+        "status": "valid",
+        "use_time": null,
+        "expire_time": null,
+        "duration": 0,
+        "total_count": 1,
+        "remaining_count": 1,
+        "device_id": null,
+        "allow_reverify": 0
     }
 }</code></pre>
                 
@@ -485,12 +514,170 @@ try {
 }
 ?>
 
+<style>
+.api-key-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 100%;
+}
+
+.api-key-display {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 6px 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    word-break: break-all;
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+    user-select: all;
+    transition: background-color 0.2s;
+}
+
+.api-key-display:hover {
+    background-color: #e9ecef;
+}
+
+.copy-btn {
+    flex-shrink: 0;
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+.copy-btn:hover {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+/* 响应式处理 */
+@media (max-width: 768px) {
+    .api-key-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .api-key-display {
+        font-size: 11px;
+        padding: 4px 6px;
+    }
+}
+</style>
+
 <script>
 function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(function() {
-        alert('API密钥已复制到剪贴板');
-    }, function(err) {
+    // 检查是否支持现代clipboard API
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function() {
+            showCopySuccess();
+        }, function(err) {
+            console.error('复制失败: ', err);
+            fallbackCopyTextToClipboard(text);
+        });
+    } else {
+        // 使用兼容性方法
+        fallbackCopyTextToClipboard(text);
+    }
+}
+
+function showCopySuccess() {
+    // 创建临时提示元素
+    var toast = document.createElement('div');
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #28a745;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 4px;
+        font-size: 14px;
+        z-index: 9999;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        animation: slideIn 0.3s ease-out;
+    `;
+    toast.innerHTML = '<i class="fas fa-check"></i> API密钥已复制到剪贴板';
+    
+    // 添加动画样式
+    var style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    document.body.appendChild(toast);
+    
+    // 3秒后自动移除
+    setTimeout(function() {
+        toast.style.animation = 'slideIn 0.3s ease-out reverse';
+        setTimeout(function() {
+            document.body.removeChild(toast);
+            document.head.removeChild(style);
+        }, 300);
+    }, 3000);
+}
+
+function showCopyError() {
+    // 创建错误提示元素
+    var toast = document.createElement('div');
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #dc3545;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 4px;
+        font-size: 14px;
+        z-index: 9999;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        animation: slideIn 0.3s ease-out;
+    `;
+    toast.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 复制失败，请手动复制';
+    
+    document.body.appendChild(toast);
+    
+    // 3秒后自动移除
+    setTimeout(function() {
+        toast.style.animation = 'slideIn 0.3s ease-out reverse';
+        setTimeout(function() {
+            document.body.removeChild(toast);
+        }, 300);
+    }, 3000);
+}
+
+function fallbackCopyTextToClipboard(text) {
+    var textArea = document.createElement("textarea");
+    textArea.value = text;
+    
+    // 避免滚动到底部
+    textArea.style.top = "0";
+    textArea.style.left = "0";
+    textArea.style.position = "fixed";
+    textArea.style.opacity = "0";
+    
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        var successful = document.execCommand('copy');
+        if (successful) {
+            showCopySuccess();
+        } else {
+            showCopyError();
+        }
+    } catch (err) {
         console.error('复制失败: ', err);
-    });
+        showCopyError();
+    }
+    
+    document.body.removeChild(textArea);
 }
 </script>

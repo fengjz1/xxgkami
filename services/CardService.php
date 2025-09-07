@@ -125,6 +125,7 @@ class CardService {
         ];
         
         return [
+            'card_id' => $card['id'],
             'card_key' => $card['card_key'],
             'status' => $statusMap[$card['status']] ?? 'unknown',
             'use_time' => $card['use_time'],

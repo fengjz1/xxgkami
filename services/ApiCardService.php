@@ -16,7 +16,12 @@ class ApiCardService extends CardService {
         if ($result['code'] === 0) {
             Response::success($result['message'], $result['data']);
         } else {
-            Response::error($result['message'], $result['code']);
+            // 业务逻辑错误返回200状态码，通过JSON中的code字段区分
+            Response::json([
+                'code' => $result['code'],
+                'message' => $result['message'],
+                'data' => $result['data']
+            ], 200);
         }
     }
     
@@ -29,7 +34,12 @@ class ApiCardService extends CardService {
         if ($result['code'] === 0) {
             Response::success($result['message'], $result['data']);
         } else {
-            Response::error($result['message'], $result['code']);
+            // 业务逻辑错误返回200状态码，通过JSON中的code字段区分
+            Response::json([
+                'code' => $result['code'],
+                'message' => $result['message'],
+                'data' => $result['data']
+            ], 200);
         }
     }
 }
