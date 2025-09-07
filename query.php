@@ -2,6 +2,7 @@
 session_start();
 
 require_once 'controllers/QueryController.php';
+require_once 'utils/TimeHelper.php';
 
 try {
     $controller = new QueryController();

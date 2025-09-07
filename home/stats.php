@@ -10,6 +10,7 @@ require_once 'includes/AdminLayout.php';
 require_once 'classes/BaseController.php';
 require_once 'classes/StatisticsManager.php';
 require_once 'classes/UIComponents.php';
+require_once '../utils/TimeHelper.php';
 
 class StatsController extends BaseController {
     private $statsManager;
@@ -115,7 +116,7 @@ class StatsController extends BaseController {
                 $rows[] = [
                     '<code title="' . htmlspecialchars($card['card_key']) . '">' . htmlspecialchars($card['card_key']) . '</code>',
                     $card['card_type'] == 'time' ? '时间卡密' : '次数卡密',
-                    $card['use_time'],
+                    TimeHelper::format($card['use_time']),
                     $card['device_id'] ? '<span title="' . htmlspecialchars($card['device_id']) . '">' . substr($card['device_id'], 0, 10) . '...</span>' : '-'
                 ];
             }

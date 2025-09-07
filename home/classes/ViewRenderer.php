@@ -1,4 +1,6 @@
 <?php
+require_once '../utils/TimeHelper.php';
+
 /**
  * 视图渲染类
  */
@@ -67,13 +69,13 @@ class ViewRenderer {
         }
         
         // 使用时间
-        $html .= '<td>' . ($card['use_time'] ?: '-') . '</td>';
+        $html .= '<td>' . TimeHelper::format($card['use_time']) . '</td>';
         
         // 到期时间
-        $html .= '<td>' . ($card['expire_time'] ?: '-') . '</td>';
+        $html .= '<td>' . TimeHelper::format($card['expire_time']) . '</td>';
         
         // 创建时间
-        $html .= '<td>' . $card['create_time'] . '</td>';
+        $html .= '<td>' . TimeHelper::format($card['create_time']) . '</td>';
         
         // 设备ID
         if($card['status'] && $card['device_id']) {

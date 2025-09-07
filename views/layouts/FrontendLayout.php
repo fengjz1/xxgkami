@@ -77,7 +77,7 @@
         </div>
         
         <div class="footer-bottom">
-            <p>&copy; <?php echo date('Y'); ?> <?php echo htmlspecialchars($settings['copyright_text']); ?></p>
+            <p>&copy; <?php echo TimeHelper::now('Y'); ?> <?php echo htmlspecialchars($settings['copyright_text']); ?></p>
         </div>
     </footer>
 

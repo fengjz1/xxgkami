@@ -9,6 +9,7 @@ require_once '../config.php';
 require_once 'classes/BaseController.php';
 require_once 'classes/SettingsManager.php';
 require_once 'includes/AdminLayout.php';
+require_once '../utils/TimeHelper.php';
 
 /**
  * 系统设置控制器
@@ -510,8 +511,8 @@ class SettingsController extends BaseController {
                         <p><strong>MySQL版本：</strong> ' . $systemInfo['mysql_version'] . '</p>
                     </div>
                     <div class="col-md-6">
-                        <p><strong>安装时间：</strong> ' . $systemInfo['install_time'] . '</p>
-                        <p><strong>服务器时间：</strong> ' . date('Y-m-d H:i:s') . '</p>
+                        <p><strong>安装时间：</strong> ' . TimeHelper::format($systemInfo['install_time']) . '</p>
+                        <p><strong>服务器时间：</strong> ' . TimeHelper::now() . ' (东八区)</p>
                     </div>
                 </div>
             </div>

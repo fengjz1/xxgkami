@@ -2,6 +2,7 @@
 session_start();
 
 require_once 'controllers/VerifyController.php';
+require_once 'utils/TimeHelper.php';
 
 try {
     $controller = new VerifyController();

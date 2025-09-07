@@ -5,6 +5,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 session_start();
+require_once '../utils/TimeHelper.php';
 
 // 初始化错误变量
 $error = null;
@@ -730,7 +731,7 @@ function checkSystem() {
 
     <footer class="footer-copyright">
         <div class="container">
-            &copy; <?php echo date('Y'); ?> 小小怪卡密系统 - All Rights Reserved
+            &copy; <?php echo TimeHelper::now('Y'); ?> 小小怪卡密系统 - All Rights Reserved
         </div>
     </footer>
 

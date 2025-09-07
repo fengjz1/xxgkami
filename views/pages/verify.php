@@ -53,7 +53,7 @@
                         <?php if ($card_data['expire_time']): ?>
                         <div class="result-item">
                             <label>到期时间:</label>
-                            <span><?php echo date('Y-m-d H:i:s', strtotime($card_data['expire_time'])); ?></span>
+                            <span><?php echo TimeHelper::format($card_data['expire_time']); ?></span>
                         </div>
                         <?php endif; ?>
                         
@@ -77,7 +77,7 @@
                         <?php if ($card_data['use_time']): ?>
                         <div class="result-item">
                             <label>使用时间:</label>
-                            <span><?php echo date('Y-m-d H:i:s', strtotime($card_data['use_time'])); ?></span>
+                            <span><?php echo TimeHelper::format($card_data['use_time']); ?></span>
                         </div>
                         <?php endif; ?>
                         

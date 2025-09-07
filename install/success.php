@@ -5,6 +5,7 @@ if(!file_exists("../install.lock") || !isset($_SESSION['install_info'])){
     exit;
 }
 
+require_once '../utils/TimeHelper.php';
 $install_info = $_SESSION['install_info'];
 ?>
 
@@ -114,7 +115,7 @@ $install_info = $_SESSION['install_info'];
 
     <footer class="footer-copyright">
         <div class="container">
-            &copy; <?php echo date('Y'); ?> 小小怪卡密系统 - All Rights Reserved
+            &copy; <?php echo TimeHelper::now('Y'); ?> 小小怪卡密系统 - All Rights Reserved
         </div>
     </footer>
 </body>

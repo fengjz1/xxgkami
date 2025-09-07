@@ -9,6 +9,7 @@ require_once '../config.php';
 require_once 'classes/BaseController.php';
 require_once 'classes/ApiManager.php';
 require_once 'includes/AdminLayout.php';
+require_once '../utils/TimeHelper.php';
 
 /**
  * API设置控制器
@@ -158,7 +159,7 @@ class ApiSettingsController extends BaseController {
                     <div class="stat-card">
                         <i class="fas fa-clock fa-2x" style="color: #e74c3c; margin-bottom: 10px;"></i>
                         <h3>最后调用</h3>
-                        <div class="value">' . ($stats['last_call'] ?: '无') . '</div>
+                        <div class="value">' . TimeHelper::format($stats['last_call']) . '</div>
                     </div>
                 </div>
             </div>
@@ -254,8 +255,8 @@ class ApiSettingsController extends BaseController {
                 </td>
                 <td><span class="badge ' . $statusClass . '">' . $statusText . '</span></td>
                 <td>' . number_format($key['use_count']) . '</td>
-                <td>' . ($key['last_use_time'] ?: '-') . '</td>
-                <td>' . $key['create_time'] . '</td>
+                <td>' . TimeHelper::format($key['last_use_time']) . '</td>
+                <td>' . TimeHelper::format($key['create_time']) . '</td>
                 <td>
                     <form method="POST" style="display: inline;">
                         <input type="hidden" name="toggle_status" value="1">

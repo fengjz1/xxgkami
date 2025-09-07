@@ -1,4 +1,6 @@
 <?php
+require_once '../utils/TimeHelper.php';
+
 /**
  * 管理后台布局模板类
  */
@@ -198,7 +200,7 @@ class AdminLayout {
     public function renderFooter() {
         $html = '<footer class="footer-copyright">
             <div class="footer-content">
-                &copy; ' . date('Y') . ' 小小怪卡密系统 - All Rights Reserved
+                &copy; ' . TimeHelper::now('Y') . ' 小小怪卡密系统 - All Rights Reserved
             </div>
         </footer>';
         

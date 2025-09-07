@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../utils/Response.php';
 require_once __DIR__ . '/../models/SettingsModel.php';
+require_once __DIR__ . '/../utils/TimeHelper.php';
 
 /**
  * 基础控制器
