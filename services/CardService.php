@@ -117,9 +117,16 @@ class CardService {
      * 格式化卡密数据
      */
     private function formatCardData($card) {
+        // 将status转换为字符串格式以匹配API文档
+        $statusMap = [
+            0 => 'valid',    // 未使用
+            1 => 'used',     // 已使用
+            2 => 'disabled'  // 已停用
+        ];
+        
         return [
             'card_key' => $card['card_key'],
-            'status' => $card['status'],
+            'status' => $statusMap[$card['status']] ?? 'unknown',
             'use_time' => $card['use_time'],
             'expire_time' => $card['expire_time'],
             'card_type' => $card['card_type'],
