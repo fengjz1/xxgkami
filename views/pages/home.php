@@ -1,7 +1,8 @@
 <!-- 轮播图 -->
 <?php if (!empty($slides)): ?>
 <section class="hero-section">
-    <div class="hero-slider">
+    <div class="container">
+        <div class="hero-slider">
         <?php foreach ($slides as $slide): ?>
         <div class="hero-slide">
             <div class="hero-content">
@@ -18,57 +19,11 @@
             <?php endif; ?>
         </div>
         <?php endforeach; ?>
+        </div>
     </div>
 </section>
 <?php endif; ?>
 
-<!-- 统计信息 -->
-<section class="stats-section">
-    <div class="container">
-        <h2 class="section-title">系统统计</h2>
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-key"></i>
-                </div>
-                <div class="stat-content">
-                    <h3><?php echo number_format($stats['total']); ?></h3>
-                    <p>总卡密数</p>
-                </div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <div class="stat-content">
-                    <h3><?php echo number_format($stats['used']); ?></h3>
-                    <p>已使用</p>
-                </div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div class="stat-content">
-                    <h3><?php echo number_format($stats['unused']); ?></h3>
-                    <p>未使用</p>
-                </div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-chart-pie"></i>
-                </div>
-                <div class="stat-content">
-                    <h3><?php echo $stats['usage_rate']; ?>%</h3>
-                    <p>使用率</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
 <!-- 系统特点 -->
 <?php if (!empty($features)): ?>

@@ -218,7 +218,7 @@ try {
                         </label>
                     </div>
                 </div>
-                <div class="table-responsive">
+                <div class="table-responsive card-list-table">
                     <table>
                         <thead>
                             <tr>

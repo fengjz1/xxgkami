@@ -112,13 +112,13 @@ class UIComponents {
     /**
      * 渲染表格
      */
-    public static function renderTable($headers, $rows, $attributes = []) {
+    public static function renderTable($headers, $rows, $table_class = '', $attributes = []) {
         $attrs = '';
         foreach($attributes as $key => $val) {
             $attrs .= ' ' . $key . '="' . htmlspecialchars($val) . '"';
         }
         
-        $html = '<div class="table-responsive">';
+        $html = '<div class="table-responsive ' . $table_class . '">';
         $html .= '<table class="table"' . $attrs . '>';
         $html .= '<thead><tr>';
         foreach($headers as $header) {

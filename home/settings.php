@@ -37,20 +37,20 @@ class SettingsController extends BaseController {
                 $admin = $stmt->fetch();
                 
                 if(!password_verify($old_password, $admin['password'])){
-                    $this->addMessage('旧密码错误', 'error');
+                    $this->setError('旧密码错误');
                 } elseif($new_password !== $confirm_password) {
-                    $this->addMessage('两次输入的新密码不一致', 'error');
+                    $this->setError('两次输入的新密码不一致');
                 } elseif(strlen($new_password) < 6) {
-                    $this->addMessage('密码长度不能小于6位', 'error');
+                    $this->setError('密码长度不能小于6位');
                 } else {
                     // 更新密码
                     $new_hash = password_hash($new_password, PASSWORD_DEFAULT);
                     $stmt = $this->conn->prepare("UPDATE admins SET password = ? WHERE id = ?");
                     $stmt->execute([$new_hash, $_SESSION['admin_id']]);
-                    $this->addMessage('密码修改成功', 'success');
+                    $this->setSuccess('密码修改成功');
                 }
             } catch(PDOException $e) {
-                $this->addMessage('系统错误，请稍后再试', 'error');
+                $this->setError('系统错误，请稍后再试');
             }
         }
     }
@@ -72,9 +72,9 @@ class SettingsController extends BaseController {
                     $stmt->execute([$value, $name]);
                 }
                 
-                $this->addMessage('网站设置修改成功', 'success');
+                $this->setSuccess('网站设置修改成功');
             } catch(PDOException $e) {
-                $this->addMessage('系统错误，请稍后再试', 'error');
+                $this->setError('系统错误，请稍后再试');
             }
         }
     }
@@ -96,9 +96,9 @@ class SettingsController extends BaseController {
                     $stmt->execute([$value, $name]);
                 }
                 
-                $this->addMessage('联系方式设置修改成功', 'success');
+                $this->setSuccess('联系方式设置修改成功');
             } catch(PDOException $e) {
-                $this->addMessage('系统错误，请稍后再试', 'error');
+                $this->setError('系统错误，请稍后再试');
             }
         }
     }
@@ -136,14 +136,14 @@ class SettingsController extends BaseController {
                 }
                 
                 if(empty($title) || (empty($image_url) && !isset($_FILES['slide_image']))) {
-                    $this->addMessage('标题和图片不能为空', 'error');
+                    $this->setError('标题和图片不能为空');
                 } else {
                     $stmt = $this->conn->prepare("INSERT INTO slides (title, description, image_url, sort_order) VALUES (?, ?, ?, ?)");
                     $stmt->execute([$title, $description, $image_url, $sort_order]);
-                    $this->addMessage('轮播图添加成功', 'success');
+                    $this->setSuccess('轮播图添加成功');
                 }
             } catch(PDOException $e) {
-                $this->addMessage('系统错误，请稍后再试', 'error');
+                $this->setError('系统错误，请稍后再试');
             }
         }
     }
@@ -161,22 +161,22 @@ class SettingsController extends BaseController {
                 $sort_order = (int)$_POST['sort_order'];
                 
                 if(empty($title) || empty($description)) {
-                    $this->addMessage('标题和描述不能为空', 'error');
+                    $this->setError('标题和描述不能为空');
                 } else {
                     if($feature_id > 0) {
                         // 更新现有特点
                         $stmt = $this->conn->prepare("UPDATE features SET icon = ?, title = ?, description = ?, sort_order = ? WHERE id = ?");
                         $stmt->execute([$icon, $title, $description, $sort_order, $feature_id]);
-                        $this->addMessage('系统特点更新成功', 'success');
+                        $this->setSuccess('系统特点更新成功');
                     } else {
                         // 添加新特点
                         $stmt = $this->conn->prepare("INSERT INTO features (icon, title, description, sort_order) VALUES (?, ?, ?, ?)");
                         $stmt->execute([$icon, $title, $description, $sort_order]);
-                        $this->addMessage('系统特点添加成功', 'success');
+                        $this->setSuccess('系统特点添加成功');
                     }
                 }
             } catch(PDOException $e) {
-                $this->addMessage('系统错误，请稍后再试', 'error');
+                $this->setError('系统错误，请稍后再试');
             }
         }
     }
@@ -192,7 +192,7 @@ class SettingsController extends BaseController {
                     $slide_id = (int)$_POST['slide_id'];
                     $stmt = $this->conn->prepare("DELETE FROM slides WHERE id = ?");
                     $stmt->execute([$slide_id]);
-                    $this->addMessage('轮播图删除成功', 'success');
+                    $this->setSuccess('轮播图删除成功');
                 }
                 
                 // 删除系统特点
@@ -200,10 +200,10 @@ class SettingsController extends BaseController {
                     $feature_id = (int)$_POST['feature_id'];
                     $stmt = $this->conn->prepare("DELETE FROM features WHERE id = ?");
                     $stmt->execute([$feature_id]);
-                    $this->addMessage('系统特点删除成功', 'success');
+                    $this->setSuccess('系统特点删除成功');
                 }
             } catch(PDOException $e) {
-                $this->addMessage('系统错误，请稍后再试', 'error');
+                $this->setError('系统错误，请稍后再试');
             }
         }
     }
@@ -383,7 +383,7 @@ class SettingsController extends BaseController {
                     <button type="submit" class="btn btn-primary">添加轮播图</button>
                 </form>
                 
-                <div class="table-responsive" style="margin-top: 20px;">
+                <div class="table-responsive slides-table" style="margin-top: 20px;">
                     <table class="table">
                         <thead>
                             <tr>
@@ -455,7 +455,7 @@ class SettingsController extends BaseController {
                     <button type="submit" class="btn btn-primary">添加特点</button>
                 </form>
                 
-                <div class="table-responsive" style="margin-top: 20px;">
+                <div class="table-responsive features-table" style="margin-top: 20px;">
                     <table class="table">
                         <thead>
                             <tr>

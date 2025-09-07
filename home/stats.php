@@ -119,7 +119,7 @@ class StatsController extends BaseController {
                     $card['device_id'] ? '<span title="' . htmlspecialchars($card['device_id']) . '">' . substr($card['device_id'], 0, 10) . '...</span>' : '-'
                 ];
             }
-            $content .= UIComponents::renderCard('最近使用记录', UIComponents::renderTable($headers, $rows));
+            $content .= UIComponents::renderCard('最近使用记录', UIComponents::renderTable($headers, $rows, 'recent-cards-table'));
         }
         
         // 添加Chart.js脚本

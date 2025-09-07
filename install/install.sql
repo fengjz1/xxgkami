@@ -65,9 +65,9 @@ CREATE TABLE IF NOT EXISTS `slides` (
 
 -- 插入默认轮播图数据
 INSERT INTO `slides` (`title`, `description`, `image_url`, `sort_order`) VALUES 
-('安全可靠的验证系统', '采用先进的加密技术，确保您的数据安全', 'assets/images/slide1.jpg', 1),
-('便捷高效的验证流程', '支持多种验证方式，快速响应', 'assets/images/slide2.jpg', 2),
-('完整的API接口', '提供丰富的接口，便于集成', 'assets/images/slide3.jpg', 3); 
+('安全可靠的验证系统', '采用先进的加密技术，确保您的数据安全', 'assets/images/slides/slide1.jpg', 1),
+('便捷高效的验证流程', '支持多种验证方式，快速响应', 'assets/images/slides/slide2.jpg', 2),
+('完整的API接口', '提供丰富的接口，便于集成', 'assets/images/slides/slide3.jpg', 3); 
 
 -- 创建系统特点表
 CREATE TABLE IF NOT EXISTS `features` (

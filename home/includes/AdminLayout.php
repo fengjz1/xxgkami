@@ -88,7 +88,7 @@ class AdminLayout {
         
         $html .= '
 </head>
-<body>';
+<body class="' . ($this->currentPage ? $this->currentPage . '-page' : '') . '">';
         
         return $html;
     }
