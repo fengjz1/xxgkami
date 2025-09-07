@@ -460,6 +460,91 @@ echo $layout->renderPageHeader();
             showAllColumns();
         }
     });
+    
+    // 复制到剪贴板函数
+    function copyToClipboard(text) {
+        // 检查是否支持现代clipboard API
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).then(function() {
+                showCopySuccess();
+            }, function(err) {
+                console.error('复制失败: ', err);
+                fallbackCopyTextToClipboard(text);
+            });
+        } else {
+            // 使用兼容性方法
+            fallbackCopyTextToClipboard(text);
+        }
+    }
+    
+    function showCopySuccess() {
+        // 创建临时提示元素
+        var toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            z-index: 9999;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease-out;
+        `;
+        toast.innerHTML = '<i class="fas fa-check"></i> 设备ID已复制到剪贴板';
+        
+        // 添加动画样式
+        var style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        document.body.appendChild(toast);
+        
+        // 3秒后自动移除
+        setTimeout(function() {
+            toast.style.animation = 'slideIn 0.3s ease-out reverse';
+            setTimeout(function() {
+                document.body.removeChild(toast);
+                document.head.removeChild(style);
+            }, 300);
+        }, 3000);
+    }
+    
+    function fallbackCopyTextToClipboard(text) {
+        var textArea = document.createElement("textarea");
+        textArea.value = text;
+        
+        // 避免滚动到底部
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.position = "fixed";
+        textArea.style.opacity = "0";
+        
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+            var successful = document.execCommand('copy');
+            if (successful) {
+                showCopySuccess();
+            } else {
+                alert('复制失败，请手动复制');
+            }
+        } catch (err) {
+            console.error('复制失败: ', err);
+            alert('复制失败，请手动复制');
+        }
+        
+        document.body.removeChild(textArea);
+    }
     </script>
 <?php 
 echo $layout->renderMainContentEnd();

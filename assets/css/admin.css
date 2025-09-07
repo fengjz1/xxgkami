@@ -503,19 +503,61 @@ canvas {
 }
 
 /* 设备ID样式 */
-.device-id {
-    display: inline-block;
-    max-width: 150px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    background: #f8f9fa;
-    padding: 2px 8px;
+.device-id-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+}
+
+.device-id-display {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
     border-radius: 4px;
-    font-family: monospace;
-    font-size: 12px;
-    color: #666;
-    cursor: help;
+    padding: 4px 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    word-break: break-all;
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+    user-select: all;
+    transition: background-color 0.2s;
+    color: #495057;
+}
+
+.device-id-display:hover {
+    background-color: #e9ecef;
+}
+
+.device-id-container .copy-btn {
+    flex-shrink: 0;
+    padding: 2px 6px;
+    font-size: 10px;
+    min-width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.device-id-container .copy-btn:hover {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+/* 响应式处理 */
+@media (max-width: 768px) {
+    .device-id-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .device-id-display {
+        font-size: 10px;
+        padding: 3px 5px;
+    }
 }
 
 .device-id:hover {

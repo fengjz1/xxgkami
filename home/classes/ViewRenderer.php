@@ -80,10 +80,14 @@ class ViewRenderer {
         // 设备ID
         if($card['status'] && $card['device_id']) {
             $deviceId = $card['device_id'];
-            $displayId = strlen($deviceId) > 10 ? 
-                substr($deviceId, 0, 6) . '...' . substr($deviceId, -4) : 
-                $deviceId;
-            $html .= '<td><span class="device-id" title="' . htmlspecialchars($deviceId) . '">' . htmlspecialchars($displayId) . '</span></td>';
+            $html .= '<td>
+                <div class="device-id-container">
+                    <code class="device-id-display" title="点击复制" onclick="copyToClipboard(\'' . htmlspecialchars($deviceId) . '\')">' . htmlspecialchars($deviceId) . '</code>
+                    <button type="button" class="btn btn-sm btn-outline-secondary copy-btn" onclick="copyToClipboard(\'' . htmlspecialchars($deviceId) . '\')" title="复制设备ID">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            </td>';
         } else {
             $html .= '<td>-</td>';
         }
