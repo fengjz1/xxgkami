@@ -98,17 +98,32 @@ class CardManager {
     /**
      * 获取卡密列表
      */
-    public function getCards($limit = 20, $page = 1, $search = '') {
+    public function getCards($limit = 20, $page = 1, $search = '', $status_filter = '', $type_filter = '') {
         $offset = ($page - 1) * $limit;
         
         // 构建搜索条件
-        $whereClause = '';
+        $whereConditions = [];
         $params = [];
         
         if (!empty($search)) {
-            $whereClause = "WHERE (card_key LIKE ? OR encrypted_key LIKE ? OR device_id LIKE ?)";
+            $whereConditions[] = "(card_key LIKE ? OR encrypted_key LIKE ? OR device_id LIKE ?)";
             $searchTerm = "%{$search}%";
-            $params = [$searchTerm, $searchTerm, $searchTerm];
+            $params = array_merge($params, [$searchTerm, $searchTerm, $searchTerm]);
+        }
+        
+        if ($status_filter !== '') {
+            $whereConditions[] = "status = ?";
+            $params[] = $status_filter;
+        }
+        
+        if (!empty($type_filter)) {
+            $whereConditions[] = "card_type = ?";
+            $params[] = $type_filter;
+        }
+        
+        $whereClause = '';
+        if (!empty($whereConditions)) {
+            $whereClause = "WHERE " . implode(' AND ', $whereConditions);
         }
         
         // 获取总数
@@ -139,7 +154,9 @@ class CardManager {
             'total_pages' => $total_pages,
             'current_page' => $page,
             'limit' => $limit,
-            'search' => $search
+            'search' => $search,
+            'status_filter' => $status_filter,
+            'type_filter' => $type_filter
         ];
     }
     
@@ -205,5 +222,75 @@ class CardManager {
     public function unbindDevice($card_id) {
         $stmt = $this->conn->prepare("UPDATE cards SET device_id = NULL WHERE id = ? AND status IN (1, 2)");
         return $stmt->execute([$card_id]);
+    }
+    
+    /**
+     * 根据ID数组获取卡密数据
+     */
+    public function getCardsByIds($ids) {
+        if(empty($ids)) {
+            return [];
+        }
+        
+        // 确保所有ID都是整数
+        $ids = array_map('intval', $ids);
+        $ids = array_filter($ids, function($id) { return $id > 0; });
+        
+        if(empty($ids)) {
+            return [];
+        }
+        
+        $placeholders = str_repeat('?,', count($ids) - 1) . '?';
+        $sql = "SELECT * FROM cards WHERE id IN ($placeholders) ORDER BY id DESC";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($ids);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * 根据筛选条件获取卡密数据（用于导出）
+     */
+    public function getCardsForExport($ids = [], $search = '', $status_filter = '', $type_filter = '') {
+        // 构建搜索条件
+        $whereConditions = [];
+        $params = [];
+        
+        if (!empty($ids)) {
+            $ids = array_map('intval', $ids);
+            $ids = array_filter($ids, function($id) { return $id > 0; });
+            if (!empty($ids)) {
+                $placeholders = str_repeat('?,', count($ids) - 1) . '?';
+                $whereConditions[] = "id IN ($placeholders)";
+                $params = array_merge($params, $ids);
+            }
+        }
+        
+        if (!empty($search)) {
+            $whereConditions[] = "(card_key LIKE ? OR encrypted_key LIKE ? OR device_id LIKE ?)";
+            $searchTerm = "%{$search}%";
+            $params = array_merge($params, [$searchTerm, $searchTerm, $searchTerm]);
+        }
+        
+        if ($status_filter !== '') {
+            $whereConditions[] = "status = ?";
+            $params[] = $status_filter;
+        }
+        
+        if (!empty($type_filter)) {
+            $whereConditions[] = "card_type = ?";
+            $params[] = $type_filter;
+        }
+        
+        $whereClause = '';
+        if (!empty($whereConditions)) {
+            $whereClause = "WHERE " . implode(' AND ', $whereConditions);
+        }
+        
+        $sql = "SELECT * FROM cards {$whereClause} ORDER BY id DESC";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($params);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

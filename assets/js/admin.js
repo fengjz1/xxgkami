@@ -175,8 +175,14 @@ function copyCardKey(btn) {
  * 全选/取消全选
  */
 function toggleSelectAll() {
-    const selectAll = document.getElementById('selectAll');
-    const checkboxes = document.querySelectorAll('.card-checkbox');
+    const selectAll = document.getElementById('selectAllHeader') || document.getElementById('selectAllTable');
+    const checkboxes = document.querySelectorAll('input[name="card_ids[]"]');
+    
+    if (!selectAll) {
+        console.error('找不到全选复选框');
+        return;
+    }
+    
     checkboxes.forEach(checkbox => {
         checkbox.checked = selectAll.checked;
         if(selectAll.checked) {
@@ -191,11 +197,13 @@ function toggleSelectAll() {
  * 更新全选状态
  */
 function updateSelectAllState() {
-    const selectAll = document.getElementById('selectAll');
-    const checkboxes = document.querySelectorAll('.card-checkbox');
-    const checkedBoxes = document.querySelectorAll('.card-checkbox:checked');
+    const selectAll = document.getElementById('selectAllHeader') || document.getElementById('selectAllTable');
+    const checkboxes = document.querySelectorAll('input[name="card_ids[]"]');
+    const checkedBoxes = document.querySelectorAll('input[name="card_ids[]"]:checked');
     
-    selectAll.checked = checkboxes.length === checkedBoxes.length;
+    if (selectAll) {
+        selectAll.checked = checkboxes.length === checkedBoxes.length;
+    }
     
     // 更新选中卡密集合
     selectedCards.clear();
@@ -205,10 +213,68 @@ function updateSelectAllState() {
 }
 
 /**
- * 导出为Excel
+ * 获取选中的卡密ID
+ */
+function getSelectedCards() {
+    const checkboxes = document.querySelectorAll('input[name="card_ids[]"]:checked');
+    return Array.from(checkboxes).map(cb => cb.value);
+}
+
+/**
+ * 导出为CSV
  */
 function exportSelected() {
-    const checkboxes = document.querySelectorAll('.card-checkbox:checked');
+    // 检查是否存在exportFileName元素，如果不存在则使用默认的导出逻辑
+    const exportFileNameElement = document.getElementById('exportFileName');
+    if (!exportFileNameElement) {
+        // 使用默认的导出逻辑（表单提交方式）
+        const selectedCards = getSelectedCards();
+        if (selectedCards.length === 0) {
+            alert('请先选择要导出的卡密');
+            return;
+        }
+        
+        // 生成默认文件名
+        const now = new Date();
+        const dateStr = now.getFullYear() + 
+                       String(now.getMonth() + 1).padStart(2, '0') + 
+                       String(now.getDate()).padStart(2, '0') + '_' +
+                       String(now.getHours()).padStart(2, '0') + 
+                       String(now.getMinutes()).padStart(2, '0');
+        const fileName = `卡密列表_${dateStr}`;
+        
+        // 创建表单并提交
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'card_actions.php';
+        
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'action';
+        actionInput.value = 'export';
+        form.appendChild(actionInput);
+        
+        const fileNameInput = document.createElement('input');
+        fileNameInput.type = 'hidden';
+        fileNameInput.name = 'file_name';
+        fileNameInput.value = fileName;
+        form.appendChild(fileNameInput);
+        
+        selectedCards.forEach(cardId => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'card_ids[]';
+            input.value = cardId;
+            form.appendChild(input);
+        });
+        
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+        return;
+    }
+
+    const checkboxes = document.querySelectorAll('input[name="card_ids[]"]:checked');
     if (checkboxes.length === 0) {
         alert('请至少选择一个卡密');
         return;
@@ -232,7 +298,7 @@ function exportSelected() {
         });
         
         // 获取文件名
-        let fileName = document.getElementById('exportFileName').value.trim() || '卡密列表';
+        let fileName = exportFileNameElement.value.trim() || '卡密列表';
         if (!fileName.toLowerCase().endsWith('.xlsx')) {
             fileName += '.xlsx';
         }
@@ -274,7 +340,7 @@ function exportSelected() {
  * 批量删除
  */
 function deleteSelected() {
-    const checkboxes = document.querySelectorAll('.card-checkbox:checked');
+    const checkboxes = document.querySelectorAll('input[name="card_ids[]"]:checked');
     if (checkboxes.length === 0) {
         alert('请至少选择一个卡密');
         return;

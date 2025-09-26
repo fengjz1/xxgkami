@@ -38,7 +38,7 @@ class ViewRenderer {
         $html = '<tr>';
         
         // 复选框
-        $html .= '<td><input type="checkbox" class="card-checkbox" value="' . htmlspecialchars($card['card_key']) . '"></td>';
+        $html .= '<td><input type="checkbox" name="card_ids[]" class="card-checkbox" value="' . $card['id'] . '"></td>';
         
         // ID
         $html .= '<td>' . $card['id'] . '</td>';

@@ -21,6 +21,12 @@ class CardActionsController {
      * 处理请求
      */
     public function handleRequest() {
+        // 检查是否是POST请求的导出功能
+        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'export') {
+            $this->handleExport();
+            return;
+        }
+        
         // 获取POST数据
         $input = json_decode(file_get_contents('php://input'), true);
         if(!isset($input['action'])) {
@@ -68,6 +74,168 @@ class CardActionsController {
             default:
                 $this->sendResponse(false, '未知的操作类型');
         }
+    }
+    
+    /**
+     * 处理导出功能
+     */
+    private function handleExport() {
+        try {
+            // 获取选中的卡密ID
+            $card_ids = $_POST['card_ids'] ?? [];
+            
+            // 获取筛选条件
+            $search_filter = $_POST['search_filter'] ?? '';
+            $status_filter = $_POST['status_filter'] ?? '';
+            $type_filter = $_POST['type_filter'] ?? '';
+            
+            // 获取文件名
+            $file_name = $_POST['file_name'] ?? '卡密列表';
+            if(!preg_match('/^[a-zA-Z0-9_\-\x{4e00}-\x{9fa5}]+$/u', $file_name)) {
+                $file_name = '卡密列表';
+            }
+            
+            // 根据筛选条件获取卡密数据
+            $cards = $this->cardManager->getCardsForExport($card_ids, $search_filter, $status_filter, $type_filter);
+            if(empty($cards)) {
+                $this->showError('没有找到符合筛选条件的卡密数据');
+                return;
+            }
+            
+            // 生成Excel文件
+            $this->generateExcel($cards, $file_name);
+            
+        } catch(Exception $e) {
+            error_log('导出失败: ' . $e->getMessage());
+            $this->showError('导出失败，请稍后重试');
+        }
+    }
+    
+    /**
+     * 生成Excel文件
+     */
+    private function generateExcel($cards, $file_name) {
+        // 设置响应头 - 使用CSV格式
+        header('Content-Type: text/csv; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="' . $file_name . '.csv"');
+        header('Cache-Control: max-age=0');
+        
+        // 创建临时文件
+        $temp_file = tempnam(sys_get_temp_dir(), 'export_');
+        
+        try {
+            // 创建CSV内容
+            $csv_content = $this->generateCSV($cards);
+            
+            // 写入临时文件
+            file_put_contents($temp_file, $csv_content);
+            
+            // 输出文件内容
+            readfile($temp_file);
+            
+        } finally {
+            // 清理临时文件
+            if(file_exists($temp_file)) {
+                unlink($temp_file);
+            }
+        }
+    }
+    
+    /**
+     * 生成CSV内容
+     */
+    private function generateCSV($cards) {
+        $csv = "\xEF\xBB\xBF"; // UTF-8 BOM
+        $csv .= "ID,卡密,状态,类型,有效期/剩余次数,使用时间,到期时间,创建时间,设备ID,允许重复验证\n";
+        
+        foreach($cards as $card) {
+            $status = $this->getStatusText($card['status']);
+            $type = $this->getTypeText($card['card_type']);
+            $duration = $this->getDurationText($card);
+            $used_time = $card['use_time'] ? date('Y-m-d H:i:s', strtotime($card['use_time'])) : '';
+            $expire_time = $card['expire_time'] ? date('Y-m-d H:i:s', strtotime($card['expire_time'])) : '';
+            $created_time = date('Y-m-d H:i:s', strtotime($card['create_time']));
+            $device_id = $card['device_id'] ?: '';
+            $allow_reverify = $card['allow_reverify'] ? '是' : '否';
+            
+            $csv .= sprintf("%d,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
+                $card['id'],
+                $card['card_key'],
+                $status,
+                $type,
+                $duration,
+                $used_time,
+                $expire_time,
+                $created_time,
+                $device_id,
+                $allow_reverify
+            );
+        }
+        
+        return $csv;
+    }
+    
+    /**
+     * 获取状态文本
+     */
+    private function getStatusText($status) {
+        switch($status) {
+            case 0: return '未使用';
+            case 1: return '已使用';
+            case 2: return '已停用';
+            default: return '未知';
+        }
+    }
+    
+    /**
+     * 获取类型文本
+     */
+    private function getTypeText($type) {
+        switch($type) {
+            case 'time': return '时间卡';
+            case 'count': return '次数卡';
+            default: return '未知';
+        }
+    }
+    
+    /**
+     * 获取有效期/剩余次数文本
+     */
+    private function getDurationText($card) {
+        if($card['card_type'] == 'time') {
+            // 时间卡
+            $days = $card['duration'] ?? 0;
+            return $days . '天';
+        } else {
+            // 次数卡
+            $count = $card['remaining_count'] ?? 0;
+            return $count . '次';
+        }
+    }
+    
+    /**
+     * 显示错误页面
+     */
+    private function showError($message) {
+        echo '<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>导出失败</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+        .error { color: #d32f2f; font-size: 18px; }
+        .back-btn { margin-top: 20px; }
+        .back-btn a { color: #1976d2; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="error">' . htmlspecialchars($message) . '</div>
+    <div class="back-btn">
+        <a href="javascript:history.back()">返回上一页</a>
+    </div>
+</body>
+</html>';
     }
     
     /**

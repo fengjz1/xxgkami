@@ -16,6 +16,8 @@ $error = null;
 $success = null;
 $pagination = ['total_pages' => 0, 'current_page' => 1, 'limit' => 20];
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+$status_filter = isset($_GET['status']) ? $_GET['status'] : '';
+$type_filter = isset($_GET['type']) ? $_GET['type'] : '';
 
 try {
     $conn = new PDO("mysql:host=".DB_HOST.";dbname=".DB_NAME, DB_USER, DB_PASS);
@@ -99,7 +101,7 @@ try {
 
     $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
     
-    $result = $cardManager->getCards($limit, $page, $search);
+    $result = $cardManager->getCards($limit, $page, $search, $status_filter, $type_filter);
     $cards = $result['cards'];
     $pagination = [
         'total_pages' => $result['total_pages'],
@@ -150,6 +152,25 @@ echo $layout->renderPageHeader();
                                 <i class="fas fa-times"></i> 清除
                             </button>
                         </div>
+                        <div class="filter-group">
+                            <div class="filter-item">
+                                <label for="statusFilter">状态筛选：</label>
+                                <select id="statusFilter" class="form-control filter-select" onchange="applyFilters()">
+                                    <option value="">全部状态</option>
+                                    <option value="0" <?php echo (isset($_GET['status']) && $_GET['status'] === '0') ? 'selected' : ''; ?>>未使用</option>
+                                    <option value="1" <?php echo (isset($_GET['status']) && $_GET['status'] === '1') ? 'selected' : ''; ?>>已使用</option>
+                                    <option value="2" <?php echo (isset($_GET['status']) && $_GET['status'] === '2') ? 'selected' : ''; ?>>已停用</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label for="typeFilter">类型筛选：</label>
+                                <select id="typeFilter" class="form-control filter-select" onchange="applyFilters()">
+                                    <option value="">全部类型</option>
+                                    <option value="time" <?php echo (isset($_GET['type']) && $_GET['type'] === 'time') ? 'selected' : ''; ?>>时间卡</option>
+                                    <option value="count" <?php echo (isset($_GET['type']) && $_GET['type'] === 'count') ? 'selected' : ''; ?>>次数卡</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -160,7 +181,7 @@ echo $layout->renderPageHeader();
                     <h3>卡密列表</h3>
                     <div class="action-controls">
                         <button type="button" class="btn btn-success" onclick="exportSelected()">
-                            <i class="fas fa-file-excel"></i> 导出Excel
+                            <i class="fas fa-file-csv"></i> 导出CSV
                         </button>
                         <button type="button" class="btn btn-danger" onclick="deleteSelected()">
                             <i class="fas fa-trash"></i> 批量删除
@@ -169,7 +190,7 @@ echo $layout->renderPageHeader();
                             <i class="fas fa-columns"></i> 列控制
                         </button>
                         <label class="select-all-container">
-                            <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
+                            <input type="checkbox" id="selectAllHeader" onclick="toggleSelectAll()">
                             <span>全选</span>
                         </label>
                     </div>
@@ -179,7 +200,7 @@ echo $layout->renderPageHeader();
                         <thead>
                             <tr>
                                 <th width="20">
-                                    <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
+                                    <input type="checkbox" id="selectAllTable" onclick="toggleSelectAll()">
                                 </th>
                                 <th>ID</th>
                                 <th>卡密</th>
@@ -293,10 +314,52 @@ echo $layout->renderPageHeader();
     
     function clearSearch() {
         document.getElementById('searchInput').value = '';
+        document.getElementById('statusFilter').value = '';
+        document.getElementById('typeFilter').value = '';
         searchCards();
     }
     
-    // 导出Excel功能（使用默认文件名）
+    // 应用筛选条件
+    function applyFilters() {
+        const searchInput = document.getElementById('searchInput');
+        const statusFilter = document.getElementById('statusFilter');
+        const typeFilter = document.getElementById('typeFilter');
+        
+        // 构建URL参数
+        const url = new URL(window.location);
+        
+        // 搜索条件
+        const searchTerm = searchInput.value.trim();
+        if (searchTerm) {
+            url.searchParams.set('search', searchTerm);
+        } else {
+            url.searchParams.delete('search');
+        }
+        
+        // 状态筛选
+        const statusValue = statusFilter.value;
+        if (statusValue) {
+            url.searchParams.set('status', statusValue);
+        } else {
+            url.searchParams.delete('status');
+        }
+        
+        // 类型筛选
+        const typeValue = typeFilter.value;
+        if (typeValue) {
+            url.searchParams.set('type', typeValue);
+        } else {
+            url.searchParams.delete('type');
+        }
+        
+        // 重置到第一页
+        url.searchParams.delete('page');
+        
+        // 跳转到筛选页面
+        window.location.href = url.toString();
+    }
+    
+    // 导出CSV功能（使用默认文件名）
     function exportSelected() {
         const selectedCards = getSelectedCards();
         if (selectedCards.length === 0) {
@@ -330,6 +393,35 @@ echo $layout->renderPageHeader();
         fileNameInput.value = fileName;
         form.appendChild(fileNameInput);
         
+        // 添加筛选条件
+        const statusFilter = document.getElementById('statusFilter');
+        const typeFilter = document.getElementById('typeFilter');
+        const searchInput = document.getElementById('searchInput');
+        
+        if (statusFilter.value) {
+            const statusInput = document.createElement('input');
+            statusInput.type = 'hidden';
+            statusInput.name = 'status_filter';
+            statusInput.value = statusFilter.value;
+            form.appendChild(statusInput);
+        }
+        
+        if (typeFilter.value) {
+            const typeInput = document.createElement('input');
+            typeInput.type = 'hidden';
+            typeInput.name = 'type_filter';
+            typeInput.value = typeFilter.value;
+            form.appendChild(typeInput);
+        }
+        
+        if (searchInput.value.trim()) {
+            const searchInputHidden = document.createElement('input');
+            searchInputHidden.type = 'hidden';
+            searchInputHidden.name = 'search_filter';
+            searchInputHidden.value = searchInput.value.trim();
+            form.appendChild(searchInputHidden);
+        }
+        
         selectedCards.forEach(cardId => {
             const input = document.createElement('input');
             input.type = 'hidden';
@@ -347,6 +439,16 @@ echo $layout->renderPageHeader();
     function getSelectedCards() {
         const checkboxes = document.querySelectorAll('input[name="card_ids[]"]:checked');
         return Array.from(checkboxes).map(cb => cb.value);
+    }
+    
+    // 全选/取消全选
+    function toggleSelectAll() {
+        const selectAllCheckbox = document.getElementById('selectAllHeader') || document.getElementById('selectAllTable');
+        const cardCheckboxes = document.querySelectorAll('input[name="card_ids[]"]');
+        
+        cardCheckboxes.forEach(checkbox => {
+            checkbox.checked = selectAllCheckbox.checked;
+        });
     }
     
     // 列控制功能
@@ -546,6 +648,59 @@ echo $layout->renderPageHeader();
         document.body.removeChild(textArea);
     }
     </script>
+    
+    <style>
+    .filter-group {
+        display: flex;
+        gap: 20px;
+        margin-top: 15px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    
+    .filter-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .filter-item label {
+        font-weight: 500;
+        color: #555;
+        white-space: nowrap;
+    }
+    
+    .filter-select {
+        min-width: 120px;
+        padding: 6px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: white;
+        font-size: 14px;
+    }
+    
+    .filter-select:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    }
+    
+    @media (max-width: 768px) {
+        .filter-group {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .filter-item {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .filter-select {
+            min-width: auto;
+        }
+    }
+    </style>
 <?php 
 echo $layout->renderMainContentEnd();
 echo '</div>';
