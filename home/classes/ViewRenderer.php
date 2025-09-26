@@ -141,7 +141,8 @@ class ViewRenderer {
         $html .= '<span>每页显示：</span>';
         foreach($per_page_options as $option) {
             $activeClass = $pagination['limit'] == $option ? 'active' : '';
-            $html .= '<a href="?limit=' . $option . '" class="per-page-option ' . $activeClass . '">' . $option . '条</a>';
+            $url = self::buildUrl(['per_page' => $option]);
+            $html .= '<a href="' . $url . '" class="per-page-option ' . $activeClass . '">' . $option . '条</a>';
         }
         $html .= '</div>';
         
@@ -151,8 +152,8 @@ class ViewRenderer {
             
             // 首页和上一页
             if($pagination['current_page'] > 1) {
-                $html .= '<a href="?page=1&limit=' . $pagination['limit'] . '" title="首页"><i class="fas fa-angle-double-left"></i></a>';
-                $html .= '<a href="?page=' . ($pagination['current_page']-1) . '&limit=' . $pagination['limit'] . '" title="上一页"><i class="fas fa-angle-left"></i></a>';
+                $html .= '<a href="' . self::buildUrl(['page' => 1, 'per_page' => $pagination['limit']]) . '" title="首页"><i class="fas fa-angle-double-left"></i></a>';
+                $html .= '<a href="' . self::buildUrl(['page' => $pagination['current_page']-1, 'per_page' => $pagination['limit']]) . '" title="上一页"><i class="fas fa-angle-left"></i></a>';
             }
             
             // 页码
@@ -165,7 +166,7 @@ class ViewRenderer {
             
             for($i = $start; $i <= $end; $i++) {
                 $activeClass = $i == $pagination['current_page'] ? 'active' : '';
-                $html .= '<a href="?page=' . $i . '&limit=' . $pagination['limit'] . '" class="' . $activeClass . '">' . $i . '</a>';
+                $html .= '<a href="' . self::buildUrl(['page' => $i, 'per_page' => $pagination['limit']]) . '" class="' . $activeClass . '">' . $i . '</a>';
             }
             
             if($end < $pagination['total_pages']) {
@@ -174,8 +175,8 @@ class ViewRenderer {
             
             // 下一页和末页
             if($pagination['current_page'] < $pagination['total_pages']) {
-                $html .= '<a href="?page=' . ($pagination['current_page']+1) . '&limit=' . $pagination['limit'] . '" title="下一页"><i class="fas fa-angle-right"></i></a>';
-                $html .= '<a href="?page=' . $pagination['total_pages'] . '&limit=' . $pagination['limit'] . '" title="末页"><i class="fas fa-angle-double-right"></i></a>';
+                $html .= '<a href="' . self::buildUrl(['page' => $pagination['current_page']+1, 'per_page' => $pagination['limit']]) . '" title="下一页"><i class="fas fa-angle-right"></i></a>';
+                $html .= '<a href="' . self::buildUrl(['page' => $pagination['total_pages'], 'per_page' => $pagination['limit']]) . '" title="末页"><i class="fas fa-angle-double-right"></i></a>';
             }
             
             $html .= '</div>';
@@ -183,5 +184,25 @@ class ViewRenderer {
         
         $html .= '</div>';
         return $html;
+    }
+    
+    /**
+     * 构建URL，保持当前筛选条件
+     */
+    private static function buildUrl($params = []) {
+        $currentParams = $_GET;
+        
+        // 合并新参数
+        foreach($params as $key => $value) {
+            if($value === null || $value === '') {
+                unset($currentParams[$key]);
+            } else {
+                $currentParams[$key] = $value;
+            }
+        }
+        
+        // 构建查询字符串
+        $queryString = http_build_query($currentParams);
+        return '?' . $queryString;
     }
 }
